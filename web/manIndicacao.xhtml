@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="./template.xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="content">
+        <h:body>
+
+            <p:panel header="Indicação Terapêutica e Posologia" >  
+                <h:form id="dadosForm">
+                    <!--
+                    <c:if test="${loginBean.verificarLogin('manIndicacao') != true}" >  
+                        <script >  
+                            location.href="acessoNegado.xhtml";
+                        </script>  
+                    </c:if> -->   
+                    <p:growl id="msgs" showDetail="true"/>  
+
+
+                    <p:dataTable var="medi" value="#{manterIndicacaoTerapeuticaMB.medicamentos}" id="medicamentosList" paginator="true" rows="10"  rowsPerPageTemplate="10,50,100" editable="true" >
+
+                        <f:facet name="header">
+                            <h:outputText value="Medicamentos" />
+                        </f:facet>
+
+                        <p:column  headerText="Nome do Medicamento" >
+                            <h:outputText value="#{medi.nmeMedicamento}" />
+                        </p:column>
+                        <p:column  headerText="Empresa Detentora" >
+                            <h:outputText value="#{medi.tdEmpresa.nmeEmpresa}" />
+                        </p:column>
+                        <p:column  headerText="Status" >
+                            <h:outputText value="#{medi.stsMedicamento}" />
+                        </p:column>
+
+
+                        <p:column headerText="Operações">
+                            <p:commandButton id="btn_editar" update=":modoForm:modoDlg, :dadosForm:msgs" icon="ui-icon-pencil" value="Indicação Terapêutica e Posologia" oncomplete="modoDlgV.show()" action="#{manterIndicacaoTerapeuticaMB.novo()}" >  
+
+                                <f:setPropertyActionListener value="#{medi}" target="#{manterIndicacaoTerapeuticaMB.selmedicamento}" />  
+                                <f:setPropertyActionListener value="#{manterIndicacaoTerapeuticaMB.medicamentos.indexOf(medi)}" target="#{manterIndicacaoTerapeuticaMB.codMedicamento}" />  
+
+                            </p:commandButton>    
+
+
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+
+
+
+            <h:form id="modoForm">
+                <p:dialog id="modoDlg" widgetVar="modoDlgV" resizable="false" header="Indicação Terapêutica">
+
+                    <p:panelGrid columns="2" id="gridEdit"> 
+                        <h:outputLabel value="Restrição uso:  " />
+                        <h:selectOneMenu value="#{manterIndicacaoTerapeuticaMB.codRestricaoUso}">
+                            <f:selectItems value="#{manterIndicacaoTerapeuticaMB.restricoesUso}" var="res" 
+                                           itemLabel="#{res.nmeRestricao}" itemValue="#{manterIndicacaoTerapeuticaMB.restricoesUso.indexOf(res)}"
+                                           />
+                        </h:selectOneMenu> 
+                        <h:outputLabel value="Limite máximo diário" />
+                        <p:inputText   value="#{manterIndicacaoTerapeuticaMB.selIndicacaoTerapeutica.limMaxDiario}" /> 
+                        <h:outputLabel value="Tempo médio para início da ação" />
+                        <p:inputText   value="#{manterIndicacaoTerapeuticaMB.selIndicacaoTerapeutica.tempMedInicioAcao}" />
+                        <h:outputLabel value="Unidade de medida do Tempo médio:" />
+                        <h:selectOneMenu value="#{manterIndicacaoTerapeuticaMB.codUnidadeMed}">
+                            <f:selectItems value="#{manterIndicacaoTerapeuticaMB.unidadesMed}" var="uni" 
+                                           itemLabel="#{uni.sglUnidadeMedida}" itemValue="#{manterIndicacaoTerapeuticaMB.unidadesMed.indexOf(uni)}"
+                                           />
+                        </h:selectOneMenu> 
+                        <h:outputLabel value="Bula Paciente:" />
+                        <p:fileUpload    mode="simple"   value="#{manterIndicacaoTerapeuticaMB.selIndicacaoTerapeutica.arqBulaPaciente}"  allowTypes="/(\.|\/)(pdf|jpe?g|png)$/"/> 
+                        <h:outputLabel value="Bula do Profissional:" />
+                        <p:fileUpload    mode="simple"   value="#{manterIndicacaoTerapeuticaMB.selIndicacaoTerapeutica.arqBulaProfissional}"  allowTypes="/(\.|\/)(pdf|jpe?g|png)$/"/> 
+
+
+                    </p:panelGrid>
+
+                    <p:dataTable var="frase" value="#{manterIndicacaoTerapeuticaMB.frasesBulaSelecionadas}" id="frasesAlertaList" paginator="true" rows="10"  rowsPerPageTemplate="10,50,100" editable="true" >
+
+                        <f:facet name="header">
+                            <h:outputText value="Frases Alerta Bula" />
+                        </f:facet>
+
+                        <p:column  headerText="Frase Alerta" >
+                            <h:outputText value="#{frase.tdFraseAlerta.dscFraseAlerta}" />
+                        </p:column>
+                        <p:column headerText="">
+                            <p:commandButton id="btnExcluirFrase" oncomplete="modoDlgV.show()" update=":modoForm:modoDlg, :dadosForm:medicamentosList, :dadosForm:msgs" icon="ui-icon-closethick"   action="#{manterIndicacaoTerapeuticaMB.removerFrase()}" >  
+
+                                <f:setPropertyActionListener value="#{frase}" target="#{manterIndicacaoTerapeuticaMB.selFraseAlertaBurla}" />  
+
+
+                            </p:commandButton>    
+
+
+                        </p:column>
+
+                    </p:dataTable>
+                    <p:commandButton  id="btnNovoFrase"  value="Nova Frase Alerta" oncomplete="novoFraseDlgV.show()" update=":novoFraseForm:novoFraseDlg, :modoForm:modoDlg, :dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" icon="ui-icon-disk" action="#{manterIndicacaoTerapeuticaMB.novoFrase()}" 
+                                      />
+
+                    <p:dataTable var="indicacao" value="#{manterIndicacaoTerapeuticaMB.indicacoesSelecionadas}" id="indicacoesList" paginator="true" rows="10"  rowsPerPageTemplate="10,50,100" editable="true" >
+
+                        <f:facet name="header">
+                            <h:outputText value="Indicações e Posologia " />
+                        </f:facet>
+
+                        <p:column  headerText="CID" >
+                            <h:outputText value="#{indicacao.tdDoenca.codCid}-#{indicacao.tdDoenca.nmeDoenca}" />
+                        </p:column>
+                        <p:column  headerText="Complemento da indicação terapêutico técnico" >
+                            <h:outputText value="#{indicacao.compIndicacaoTerapeuticaTecnica}" />
+                        </p:column>
+                        <p:column headerText="">
+                            <p:commandButton id="btnExcluirFrase" oncomplete="modoDlgV.show()" update=":modoForm:modoDlg, :dadosForm:medicamentosList, :dadosForm:msgs" icon="ui-icon-closethick"   action="#{manterIndicacaoTerapeuticaMB.removerIndicacaoPosologia()}" >  
+
+                                <f:setPropertyActionListener value="#{indicacao}" target="#{manterIndicacaoTerapeuticaMB.selIndicacaoPosologia}" />  
+
+
+                            </p:commandButton>    
+                        </p:column>
+
+
+                    </p:dataTable>
+                    <p:commandButton  id="btnNovoIndicacao"  value="Nova Indicação e Posologia" oncomplete="novoIndicacaoDlgV.show()" update=":novoIndicacaoForm:novoIndicacaoDlg,:modoForm:modoDlg, :dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" icon="ui-icon-disk" action="#{manterIndicacaoTerapeuticaMB.novoIndicacao()}"
+                                      />
+                    <p/>
+                    <p:commandButton  id="btnsalvar"  value="Salvar" oncomplete="modoDlgV.hide()" update=":dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" icon="ui-icon-disk" action="#{manterIndicacaoTerapeuticaMB.salvar()}"
+                                      />
+                </p:dialog>
+            </h:form>
+            <h:form id="novoFraseForm">
+                <p:dialog id="novoFraseDlg" widgetVar="novoFraseDlgV" resizable="false" header="Frases Alerta">
+                    <p:ajax event="close" oncomplete="modoDlgV.show()"/>
+                    <p:panelGrid columns="2" id="gridNovoFrase"> 
+                        <h:outputLabel value="Frase Alerta:  " />
+                        <h:selectOneMenu value="#{manterIndicacaoTerapeuticaMB.codFraseAlerta}">
+                            <f:selectItems value="#{manterIndicacaoTerapeuticaMB.frasesAlerta}" var="fra" 
+                                           itemLabel="#{fra.dscFraseAlerta}" itemValue="#{manterIndicacaoTerapeuticaMB.frasesAlerta.indexOf(fra)}"
+                                           />
+                        </h:selectOneMenu>
+
+                    </p:panelGrid>
+                    <p:commandButton  id="btnfrase"  value="Salvar" oncomplete="modoDlgV.show(), novoFraseDlgV.hide()" update=":modoForm:modoDlg, :dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" icon="ui-icon-disk" action="#{manterIndicacaoTerapeuticaMB.salvarFrases()}"
+                                      /> 
+
+                </p:dialog>
+
+            </h:form>
+            <h:form id="novoIndicacaoForm">
+                <p:dialog id="novoIndicacaoDlg" widgetVar="novoIndicacaoDlgV" resizable="false" header="Indicação e posologia">
+                    <p:ajax event="close" oncomplete="modoDlgV.show()"/>  
+                    <p:panelGrid columns="2" id="gridNovoIndicacao"> 
+                        <h:outputLabel value="Cid :  " />
+                        <h:selectOneMenu value="#{manterIndicacaoTerapeuticaMB.codDoenca}">
+                            <f:selectItems value="#{manterIndicacaoTerapeuticaMB.doencas}" var="doenc" 
+                                           itemLabel="#{doenc.codCid} - #{doenc.nmeDoenca}" itemValue="#{manterIndicacaoTerapeuticaMB.doencas.indexOf(doenc)}"
+                                           />
+                        </h:selectOneMenu> 
+                        <h:outputLabel value="Complemento da indicação terapêutica técnica" />
+                        <p:inputTextarea   value="#{manterIndicacaoTerapeuticaMB.selIndicacaoPosologia.compIndicacaoTerapeuticaTecnica}" /> 
+                        <h:outputLabel value="Complemento da indicação terapêutica para o paciente" />
+                        <p:inputTextarea   value="#{manterIndicacaoTerapeuticaMB.selIndicacaoPosologia.compIndicacaoTerapeuticaParaPaciente}" /> 
+                        <h:outputLabel value="Objetivo terapêutico:  " />
+                        <h:selectOneMenu value="#{manterIndicacaoTerapeuticaMB.codObjetivoTerapeutico}">
+                            <f:selectItems value="#{manterIndicacaoTerapeuticaMB.objetivosTerapeuticos}" var="obj" 
+                                           itemLabel="#{obj.nmeObjeticoTerapeutico}" itemValue="#{manterIndicacaoTerapeuticaMB.objetivosTerapeuticos.indexOf(obj)}"
+                                           />
+                        </h:selectOneMenu>
+                        <h:outputLabel value="Dose padrão" />
+                        <p:inputTextarea   value="#{manterIndicacaoTerapeuticaMB.selIndicacaoPosologia.dosePadrao}" /> 
+                        <h:outputLabel value="Dose inicial" />
+                        <p:inputTextarea   value="#{manterIndicacaoTerapeuticaMB.selIndicacaoPosologia.doseInicial}" /> 
+                        <h:outputLabel value="Dose inicial" />
+                        <p:inputTextarea   value="#{manterIndicacaoTerapeuticaMB.selIndicacaoPosologia.doseManutencao}" /> 
+
+                    </p:panelGrid>
+
+                    <p:commandButton  id="btnIndicacao"  value="Salvar" oncomplete="modoDlgV.show(), novoIndicacaoDlgV.hide()" update=":modoForm:modoDlg, :dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" icon="ui-icon-disk" action="#{manterIndicacaoTerapeuticaMB.salvarIndicacaoPosologia()}"
+                                      /> 
+
+                </p:dialog>
+
+            </h:form>
+
+        </h:body>
+    </ui:define>
+</ui:composition>

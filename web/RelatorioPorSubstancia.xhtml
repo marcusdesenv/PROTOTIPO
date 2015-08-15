@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="./template.xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="content">
+
+        <p:panel header="Relatório de substâncias por medicamento">
+            <h:form id="frmGrid" styleClass="formGrid">
+                <!--  
+                <c:if test="${loginBean.verificarLogin('RelatorioPorSubstancia') != true}" >  
+                    <script >  
+                        location.href="acessoNegado.xhtml";
+                    </script>  
+                </c:if>  
+-->
+                <p:panelGrid>
+                    <p:row>
+                        <p:column>
+                            <h:outputLabel value="Medicamento: " />
+                        </p:column>
+                        <p:column>
+                            <h:selectOneMenu value="1" >
+                                <f:selectItems value="#{relatorioPorSubstanciaMB.medicamentos}" var="medi" 
+                                               itemLabel="#{medi.nmeMedicamento}" itemValue="0"
+                                               />
+                            </h:selectOneMenu>
+                        </p:column>
+                    </p:row>
+
+
+                    <p:row>
+                        <p:column colspan="2">
+                            <p:commandButton value="Emitir Relatório" actionListener="#{relatorioPorSubstanciaMB.impParametrizado()}" ajax="false"/>
+                        </p:column>
+                    </p:row>
+                </p:panelGrid>
+            </h:form>
+        </p:panel>
+
+    </ui:define>
+</ui:composition>

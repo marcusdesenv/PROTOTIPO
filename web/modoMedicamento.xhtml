@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="./template.xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="content">
+        <h:body>
+
+            <p:panel header="Modo de Uso" >  
+                <h:form id="dadosForm">
+                    <p:growl id="msgs" showDetail="true"/>  
+                    <!-- 
+                    <c:if test="${loginBean.verificarLogin('modoMedicamento') != true}" >  
+                        <script >  
+                            location.href="acessoNegado.xhtml";
+                        </script>  
+                    </c:if>  
+--> 
+                    <p:dataTable var="medi" value="#{manterModoUsoMB.medicamentos}" id="medicamentosList" paginator="true" rows="10"  rowsPerPageTemplate="10,50,100" editable="true" >
+
+                        <f:facet name="header">
+                            <h:outputText value="Medicamentos" />
+                        </f:facet>
+
+                        <p:column  headerText="Nome do Medicamento" >
+                            <h:outputText value="#{medi.nmeMedicamento}" />
+                        </p:column>
+                        <p:column  headerText="Empresa Detentora" >
+                            <h:outputText value="#{medi.tdEmpresa.nmeEmpresa}" />
+                        </p:column>
+                        <p:column  headerText="Status" >
+                            <h:outputText value="#{medi.stsMedicamento}" />
+                        </p:column>
+
+
+                        <p:column headerText="Operações">
+                            <p:commandButton id="btn_editar" update=":modoForm:modoDlg, :dadosForm:msgs" icon="ui-icon-pencil" value="Modo de Uso" oncomplete="modoDlgV.show()" action="#{manterModoUsoMB.novo()}" >  
+
+                                <f:setPropertyActionListener value="#{medi}" target="#{manterModoUsoMB.selMedicamento}" />  
+                                <f:setPropertyActionListener value="#{manterModoUsoMB.medicamentos.indexOf(medi)}"
+                                                             target="#{manterModoUsoMB.codMedicamento}" />  
+
+                            </p:commandButton>    
+                            <p:commandButton id="btn_detalhar" update=":detalharForm:detalharDlg, :dadosForm:msgs" icon="ui-icon-circle-zoomin" value="Detalhar" oncomplete="detalharDlgV.show()" action="#{manterModoUsoMB.novo()}" >  
+
+                                <f:setPropertyActionListener value="#{medi}" target="#{manterModoUsoMB.selMedicamento}" />  
+                                <f:setPropertyActionListener value="#{manterModoUsoMB.medicamentos.indexOf(medi)}"
+                                                             target="#{manterModoUsoMB.codMedicamento}" />  
+
+                            </p:commandButton>    
+
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+
+
+
+            <h:form id="modoForm">
+                <p:dialog id="modoDlg" widgetVar="modoDlgV" resizable="false" header="Modo de Uso">
+                    <p:ajax event="close" update=":dadosForm:medicamentosList, :modoForm" listener="#{manterModoUsoMB.reinit}"/>  
+                    <p:panelGrid columns="2" id="gridEdit"> 
+                        <h:outputLabel value="Nome medicamento:  " />
+                        <h:outputText  value="#{manterModoUsoMB.selMedicamento.nmeMedicamento}" /> 
+                        <h:outputLabel value="Modo preparo: " />
+                        <p:inputTextarea rows="5" cols="50" autoResize="false" maxlength="512" required="true" value="#{manterModoUsoMB.selModoUso.modPreparo}" /> 
+                        <h:outputLabel value="Modo de administração:" />
+                        <p:inputTextarea rows="5" cols="50" autoResize="false" maxlength="512" required="true" value="#{manterModoUsoMB.selModoUso.modAdministracao}" />
+                        <h:outputLabel value="Sintomas superdosagem:" />
+                        <p:inputTextarea  rows="5" cols="50" autoResize="false" maxlength="512" required="true" value="#{manterModoUsoMB.selModoUso.sintSuperdosagem}" /> 
+                        <h:outputLabel   value="Condutas em superdosagem:" />
+                        <p:inputTextarea rows="5" cols="50" autoResize="false" maxlength="512" required="true"  value="#{manterModoUsoMB.selModoUso.condEmSuperdosagem}" />
+
+                        <p:commandButton  id="btnsalvar"  value="Salvar" oncomplete="modoDlgV.hide()" update=":dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" icon="ui-icon-disk" actionListener="#{manterModoUsoMB.salvar()}"
+                                          />
+                    </p:panelGrid> 
+                </p:dialog>
+            </h:form>
+            <h:form id="detalharForm">
+                <p:dialog modal="true" id="detalharDlg" widgetVar="detalharDlgV" resizable="false" header="Modo de Uso">
+
+                    <p:panelGrid    columns="2" id="gridEdit"> 
+                        <h:outputText value="Nome medicamento:  " />
+                        <h:outputText   value="#{manterModoUsoMB.selMedicamento.nmeMedicamento}" /> 
+                        <h:outputText value="Modo preparo: " />
+                        <h:outputText  value="#{manterModoUsoMB.selModoUso.modPreparo}" /> 
+                        <h:outputText value="Modo de administração:" />
+                        <h:outputText  value="#{manterModoUsoMB.selModoUso.modAdministracao}" />
+                        <h:outputText value="Sintomas superdosagem:" />
+                        <h:outputText  value="#{manterModoUsoMB.selModoUso.sintSuperdosagem}" /> 
+                        <h:outputText value="Condutas em superdosagem:" />
+                        <h:outputText   value="#{manterModoUsoMB.selModoUso.condEmSuperdosagem}" />
+
+
+                    </p:panelGrid> 
+                </p:dialog>
+            </h:form>
+
+
+        </h:body>
+    </ui:define>
+</ui:composition>

@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="./template.xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="content">
+        <h:body>
+
+            <p:panel header="Cadastro Medicamentos" >  
+                <h:form id="dadosForm">
+                    <!-- 
+                    <c:if test="${loginBean.verificarLogin('cadMedicamento') != true}" >  
+                        <script >  
+                            location.href="acessoNegado.xhtml";
+                        </script>  
+                    </c:if>  --> 
+                    <p:growl id="msgs" showDetail="true"/>  
+
+
+                    <p:dataTable var="medi" value="#{cadastrarMedicamentoMB.medicamentos}" id="medicamentosList" paginator="true" rows="10"  rowsPerPageTemplate="10,50,100" editable="true" >
+
+                        <f:facet name="header">
+                            <h:outputText value="Medicamentos" />
+                        </f:facet>
+
+                        <p:column  headerText="Nome do Medicamento" >
+                            <h:outputText value="#{medi.nmeMedicamento}" />
+                        </p:column>
+                        <p:column  headerText="Empresa Detentora" >
+                            <h:outputText value="#{medi.tdEmpresa.nmeEmpresa}" />
+                        </p:column>
+                        <p:column  headerText="Status" >
+                            <h:outputText value="#{medi.stsMedicamento}" />
+                        </p:column>
+
+
+                        <p:column headerText="Operações">
+                            <p:commandButton id="btn_editar" update=":editForm:gridEdit, :dadosForm:msgs" icon="ui-icon-pencil" value="Editar" oncomplete="editDlgV.show()" >  
+
+                                <f:setPropertyActionListener value="#{medi}" target="#{cadastrarMedicamentoMB.selMedicamento}" />  
+                                <f:setPropertyActionListener value="#{cadastrarMedicamentoMB.empresas.indexOf(medi.tdEmpresa)}"
+                                                             target="#{cadastrarMedicamentoMB.codEmpresa}" />  
+                            </p:commandButton>    
+                            <p:commandButton id="btn_excluir" update=":frmExcluir:dlgConfExclusao, :dadosForm:msgs" value="Excluir" oncomplete="dlgConfExclusaoView.show()" icon="ui-icon-trash">  
+                                <f:setPropertyActionListener value="#{medi}" target="#{cadastrarMedicamentoMB.selMedicamento}" />  
+                            </p:commandButton>  
+                        </p:column>
+                    </p:dataTable>
+                    <p:commandButton id="btn_add" update=":addForm:gridAdd, :dadosForm:msgs" icon="ui-icon-star" value="Novo" oncomplete="addDlgV.show()" actionListener="#{cadastrarMedicamentoMB.novo}" >   
+                    </p:commandButton> 
+                </h:form>
+            </p:panel>
+
+            <h:form id="addForm">
+                <p:dialog id="addDlg" widgetVar="addDlgV" resizable="false" header="Novo">
+                    <p:ajax event="close" update=":dadosForm:medicamentosList, :addForm:gridAdd,:dadosForm:msgs" listener="#{cadastrarMedicamentoMB.reinit}"/> 
+                    <p:panelGrid columns="2" id="gridAdd"> 
+                        <h:outputLabel value="Nome Medicamento:  " />
+                        <p:inputText required="true" value="#{cadastrarMedicamentoMB.selMedicamento.nmeMedicamento}" /> 
+                        <h:outputLabel value="Status: " />
+                        <p:inputText required="true" value="#{cadastrarMedicamentoMB.selMedicamento.stsMedicamento}" /> 
+                        <h:outputLabel value="Empresa Detentora: " />
+                        <h:selectOneMenu value="#{cadastrarMedicamentoMB.codEmpresa}">
+                            <f:selectItems value="#{cadastrarMedicamentoMB.empresas}" var="emp" 
+                                           itemLabel="#{emp.nmeEmpresa}" itemValue="#{cadastrarMedicamentoMB.empresas.indexOf(emp)}"
+                                           />
+                        </h:selectOneMenu>
+
+
+
+                        <p:commandButton  id="btnAdiciona" value="Adicionar" oncomplete="addDlgV.hide()" icon="ui-icon-disk" update=":dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" actionListener="#{cadastrarMedicamentoMB.adicionar()}"
+                                          >
+                        </p:commandButton>
+                    </p:panelGrid> 
+                </p:dialog>
+            </h:form>
+
+            <h:form id="editForm">
+                <p:dialog id="editDlg" widgetVar="editDlgV" resizable="false" header="Editar">
+                    <p:ajax event="close" update=":dadosForm:medicamentosList, :editForm:gridEdit" listener="#{cadastrarMedicamentoMB.reinit}"/>  
+                    <p:panelGrid columns="2" id="gridEdit"> 
+                        <h:outputLabel value="Nome Medicamento:  " />
+                        <p:inputText required="true" value="#{cadastrarMedicamentoMB.selMedicamento.nmeMedicamento}" /> 
+                        <h:outputLabel value="Status: " />
+                        <p:inputText required="true" value="#{cadastrarMedicamentoMB.selMedicamento.stsMedicamento}" /> 
+                        <h:outputLabel value="Empresa Detentora: " />
+                        <h:selectOneMenu value="#{cadastrarMedicamentoMB.codEmpresa}">
+                            <f:selectItems value="#{cadastrarMedicamentoMB.empresas}" var="emp" 
+                                           itemLabel="#{emp.nmeEmpresa}" itemValue="#{cadastrarMedicamentoMB.empresas.indexOf(emp)}"/>
+                        </h:selectOneMenu>
+
+                        <p:commandButton  id="btnsalvar"  value="Salvar" oncomplete="editDlgV.hide()" update=":dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" icon="ui-icon-disk" actionListener="#{cadastrarMedicamentoMB.salvar()}"
+                                          />
+                    </p:panelGrid> 
+                </p:dialog>
+            </h:form>
+
+            <h:form id="frmExcluir">
+                <p:confirmDialog id="dlgConfExclusao" message="Tem certeza que deseja excluir #{cadastrarMedicamentoMB.selMedicamento.nmeMedicamento}?"  
+                                 header="Exclusão" severity="alert" widgetVar="dlgConfExclusaoView">  
+                    <p:commandButton id="btnConfirm" value="Sim" update=":dadosForm:medicamentosList, :dadosForm:msgs" 
+                                     oncomplete="dlgConfExclusaoView.hide()" actionListener="#{cadastrarMedicamentoMB.remover}" />  
+                    <p:commandButton id="btnDecline" value="Não" onclick="dlgConfExclusaoView.hide()" type="button" />   
+                </p:confirmDialog> 
+            </h:form>
+        </h:body>
+    </ui:define>
+</ui:composition>

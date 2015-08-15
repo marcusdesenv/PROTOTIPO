@@ -1,0 +1,189 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="./template.xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="content">
+        <h:body>
+
+            <p:panel header="Caracterizar Medicamento" >  
+                <h:form id="dadosForm">
+                    <!-- 
+                    <c:if test="${loginBean.verificarLogin('carMedicamento') != true}" >  
+                        <script >  
+                            location.href="acessoNegado.xhtml";
+                        </script>  
+                    </c:if>  --> 
+                    <p:growl id="msgs" showDetail="true"/>  
+
+
+                    <p:dataTable var="medi" value="#{caracterizarMedicamentoMB.medicamentos}" id="medicamentosList" paginator="true" rows="10"  rowsPerPageTemplate="10,50,100" editable="true" >
+
+                        <f:facet name="header">
+                            <h:outputText value="Medicamentos" />
+                        </f:facet>
+
+                        <p:column  headerText="Nome do Medicamento" >
+                            <h:outputText value="#{medi.nmeMedicamento}" />
+                        </p:column>
+                        <p:column  headerText="Empresa Detentora" >
+                            <h:outputText value="#{medi.tdEmpresa.nmeEmpresa}" />
+                        </p:column>
+                        <p:column  headerText="Status" >
+                            <h:outputText value="#{medi.stsMedicamento}" />
+                        </p:column>
+
+
+                        <p:column headerText="Operações">
+                            <p:commandButton id="btn_editar" update=":modoForm:modoDlg, :dadosForm:msgs" icon="ui-icon-pencil" value="Caracteristicas Medicamento" oncomplete="modoDlgV.show()" action="#{caracterizarMedicamentoMB.novo()}" >  
+
+                                <f:setPropertyActionListener value="#{medi}" target="#{caracterizarMedicamentoMB.selmedicamento}" />  
+                                <f:setPropertyActionListener value="#{caracterizarMedicamentoMB.medicamentos.indexOf(medi)}" target="#{caracterizarMedicamentoMB.codMedicamento}" />  
+
+                            </p:commandButton>    
+
+
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+
+
+
+            <h:form id="modoForm">
+                <p:dialog id="modoDlg" widgetVar="modoDlgV" resizable="false" header="Indicação Terapêutica">
+
+                    <p:panelGrid columns="2" id="gridEdit">
+                        <h:outputLabel value="Categoria regulatória:  " />
+                        <p:inputText   value="#{caracterizarMedicamentoMB.selCaracterizacaoMedicamento.catReguladora}" /> 
+                        <h:outputLabel value="Nome comercial:  " />
+                        <p:inputText   value="#{caracterizarMedicamentoMB.selCaracterizacaoMedicamento.nmeComercial}" /> 
+                        <h:outputLabel value="Restrições prescrição:" />
+                        <h:selectOneMenu value="#{caracterizarMedicamentoMB.codRestricaoPrescricao}">
+                            <f:selectItems value="#{caracterizarMedicamentoMB.restricoesPrescricao}" var="res" 
+                                           itemLabel="#{res.dscRestricaoPrescricao}" itemValue="#{caracterizarMedicamentoMB.restricoesPrescricao.indexOf(res)}"
+                                           />
+
+                        </h:selectOneMenu>
+                        <h:outputLabel value="Classe terapêutica (ATC):" />
+                        <h:selectOneMenu value="#{caracterizarMedicamentoMB.codClasseTerapeutica}">
+                            <f:selectItems value="#{caracterizarMedicamentoMB.classesTerapeuticas}" var="cla" 
+                                           itemLabel="#{cla.codClasseTerapeutica} - #{cla.dscClasseTerapeutica}" itemValue="#{caracterizarMedicamentoMB.classesTerapeuticas.indexOf(cla)}"
+                                           />
+
+                        </h:selectOneMenu>
+                        <h:outputLabel value="Tempo Conservação do Medicamento:  " />
+                        <p:inputText   value="#{caracterizarMedicamentoMB.selCaracterizacaoMedicamento.tmpConservacaoDoMedicamentoMin}" /> 
+                        <h:outputLabel value="Cuidados Adicionais:  " />
+                        <p:inputTextarea   value="#{caracterizarMedicamentoMB.selCaracterizacaoMedicamento.dscCuidadosAdicionais}" /> 
+
+
+
+                    </p:panelGrid>
+
+                    <p:dataTable var="produto" value="#{caracterizarMedicamentoMB.produtosSelecionados}" id="frasesAlertaList" paginator="true" rows="10"  rowsPerPageTemplate="10,50,100" editable="true" >
+
+                        <f:facet name="header">
+                            <h:outputText value="Produtos no Medicamento" />
+                        </f:facet>
+
+                        <p:column  headerText="Produto" >
+                            <h:outputText value="#{produto.tbProduto.nmeProduto}" />
+                        </p:column>
+                        <p:column headerText="">
+                            <p:commandButton id="btnExcluirProduto" oncomplete="modoDlgV.show()" update=":modoForm:modoDlg, :dadosForm:medicamentosList, :dadosForm:msgs" icon="ui-icon-closethick"   action="#{caracterizarMedicamentoMB.removerProdutoMedicacao()}" >  
+
+                                <f:setPropertyActionListener value="#{produto}" target="#{caracterizarMedicamentoMB.selProdutoMedicacao}" />  
+
+
+                            </p:commandButton>    
+
+
+                        </p:column>
+
+                    </p:dataTable>
+                    <p:commandButton  id="btnNovoFrase"  value="Novo Produto" oncomplete="novoFraseDlgV.show()" update=":novoFraseForm:novoFraseDlg, :modoForm:modoDlg, :dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" icon="ui-icon-disk" action="#{caracterizarMedicamentoMB.novoProdutoMedicacao()}" 
+                                      />
+
+                    <p:dataTable var="via" value="#{caracterizarMedicamentoMB.viasSelecionadas}" id="indicacoesList" paginator="true" rows="10"  rowsPerPageTemplate="10,50,100" editable="true" >
+
+                        <f:facet name="header">
+                            <h:outputText value="Vias administração " />
+                        </f:facet>
+
+                        <p:column  headerText="Via admninistração" >
+                            <h:outputText value="#{via.tdViaAdministracao.dscViaAdministracao}" />
+                        </p:column>
+
+                        <p:column headerText="">
+                            <p:commandButton id="btnExcluirVia" oncomplete="modoDlgV.show()" update=":modoForm:modoDlg, :dadosForm:medicamentosList, :dadosForm:msgs" icon="ui-icon-closethick"   action="#{caracterizarMedicamentoMB.removerVias()}" >  
+
+                                <f:setPropertyActionListener value="#{via}" target="#{caracterizarMedicamentoMB.selViaAdministracaoMedicamento}" />  
+
+
+                            </p:commandButton>    
+                        </p:column>
+
+
+                    </p:dataTable>
+                    <p:commandButton  id="btnNovoIndicacao"  value="Nova via de administração" oncomplete="novoIndicacaoDlgV.show()" update=":novoIndicacaoForm:novoIndicacaoDlg,:modoForm:modoDlg, :dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" icon="ui-icon-disk" action="#{caracterizarMedicamentoMB.novoVias()}"
+                                      />
+                    <p/>
+                    <p:commandButton  id="btnsalvar"  value="Salvar" oncomplete="modoDlgV.hide()" update=":dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" icon="ui-icon-disk" action="#{caracterizarMedicamentoMB.salvar()}"
+                                      />
+                </p:dialog>
+            </h:form>
+            <h:form id="novoFraseForm">
+                <p:dialog id="novoFraseDlg" widgetVar="novoFraseDlgV" resizable="false" header="Produto">
+                    <p:ajax event="close" oncomplete="modoDlgV.show()"/>
+                    <p:panelGrid columns="2" id="gridNovoFrase"> 
+                        <h:outputLabel value="Produto:  " />
+                        <h:selectOneMenu value="#{caracterizarMedicamentoMB.codProduto}">
+                            <f:selectItems value="#{caracterizarMedicamentoMB.produtos}" var="pro" 
+                                           itemLabel="#{pro.nmeProduto}" itemValue="#{caracterizarMedicamentoMB.produtos.indexOf(pro)}"
+                                           />
+                        </h:selectOneMenu>
+                        <h:outputLabel value="É de fabricação própria?" />
+                        <p:selectBooleanButton id="value1" value="#{caracterizarMedicamentoMB.selProdutoMedicacao.stsFabricacaoPropria}" onLabel="Sim" offLabel="Não" style="width:60px" />
+                        <h:outputLabel value="É diluente?" />
+                        <p:selectBooleanButton id="value2" value="#{caracterizarMedicamentoMB.selProdutoMedicacao.stsDiluente}" onLabel="Sim" offLabel="Não" style="width:60px" />
+                        <h:outputLabel value="É reconstituinte?" />
+                        <p:selectBooleanButton id="value3" value="#{caracterizarMedicamentoMB.selProdutoMedicacao.stsReconstituente}" onLabel="Sim" offLabel="Não" style="width:60px" />
+                        <h:outputLabel value="Necessita de reconstituição ou diluição para administração?" />
+                        <p:selectBooleanButton id="value4" value="#{caracterizarMedicamentoMB.selProdutoMedicacao.stsNecessitaReconstituicaoDiluicaoAdministrar}" onLabel="Sim" offLabel="Não" style="width:60px" />
+
+
+                    </p:panelGrid>
+                    <p:commandButton  id="btnfrase"  value="Salvar" oncomplete="modoDlgV.show(), novoFraseDlgV.hide()" update=":modoForm:modoDlg, :dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" icon="ui-icon-disk" action="#{caracterizarMedicamentoMB.salvarProdutoMedicacao()}"
+                                      /> 
+
+                </p:dialog>
+
+            </h:form>
+            <h:form id="novoIndicacaoForm">
+                <p:dialog id="novoIndicacaoDlg" widgetVar="novoIndicacaoDlgV" resizable="false" header="Vias de Administração">
+                    <p:ajax event="close" oncomplete="modoDlgV.show()"/>  
+                    <p:panelGrid columns="2" id="gridNovoIndicacao"> 
+                        <h:outputLabel value="Via :  " />
+                        <h:selectOneMenu value="#{caracterizarMedicamentoMB.codViaAdministracao}">
+                            <f:selectItems value="#{caracterizarMedicamentoMB.viasAdministracao}" var="vias" 
+                                           itemLabel="#{vias.dscViaAdministracao}" itemValue="#{caracterizarMedicamentoMB.viasAdministracao.indexOf(vias)}"
+                                           />
+                        </h:selectOneMenu>
+
+                    </p:panelGrid>
+
+                    <p:commandButton  id="btnIndicacao"  value="Salvar" oncomplete="modoDlgV.show(), novoIndicacaoDlgV.hide()" update=":modoForm:modoDlg, :dadosForm:medicamentosList, :dadosForm:msgs" ajax="true" icon="ui-icon-disk" action="#{caracterizarMedicamentoMB.salvarVias()}"
+                                      /> 
+
+                </p:dialog>
+
+            </h:form>
+
+        </h:body>
+    </ui:define>
+</ui:composition>

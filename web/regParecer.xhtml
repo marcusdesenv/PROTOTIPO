@@ -1,0 +1,97 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE composition PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                template="./template.xhtml"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui">
+
+    <ui:define name="content">
+        <h:body>
+
+            <p:panel header="Aprovar medicamento" >  
+                <h:form id="dadosForm">
+                    <p:growl id="msgs" showDetail="true"/>  
+                    <c:if test="${loginBean.verificarLogin('regParecer') != true}" >  
+                        <script >  
+                            location.href="acessoNegado.xhtml";
+                        </script>  
+                    </c:if> 
+
+
+                    <p:dataTable var="medi" value="#{registrarParecerConclusivoMB.medicamentosNaoAprovados}" id="medicamentosList" paginator="true" rows="10"  rowsPerPageTemplate="10,50,100" editable="true" >
+
+                        <f:facet name="header">
+                            <h:outputText value="Medicamentos" />
+                        </f:facet>
+
+                        <p:column  headerText="Nome do Medicamento" >
+                            <h:outputText value="#{medi.nmeMedicamento}" />
+                        </p:column>
+                        <p:column  headerText="Empresa Detentora" >
+                            <h:outputText value="#{medi.tdEmpresa.nmeEmpresa}" />
+                        </p:column>
+                        <p:column  headerText="Status" >
+                            <h:outputText value="#{medi.stsMedicamento}" />
+                        </p:column>
+
+
+                        <p:column headerText="Operações">
+                            <p:commandButton id="btn_aprovar" update=":dadosForm:medicamentosList, :dados2Form:medicamentosList2, :dadosForm:msgs" icon="ui-icon-bullet" value="Aprovar"  action="#{registrarParecerConclusivoMB.salvarAprovar()}" >  
+
+                                <f:setPropertyActionListener value="#{medi}" target="#{registrarParecerConclusivoMB.selMedicamento}" />  
+
+
+                            </p:commandButton>    
+                            <p:commandButton id="btn_indeferir" update=":dadosForm:medicamentosList,:dadosForm:msgs, :dados2Form:medicamentosList2" icon="ui-icon-bullet" value="Indeferir"  action="#{registrarParecerConclusivoMB.salvarIndeferir()}" >  
+
+                                <f:setPropertyActionListener value="#{medi}" target="#{registrarParecerConclusivoMB.selMedicamento}" />  
+
+
+                            </p:commandButton>    
+
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+                <h:form id="dados2Form">
+                    <p:growl id="msgs" showDetail="true"/>  
+
+
+                    <p:dataTable var="medi" value="#{registrarParecerConclusivoMB.medicamentosIndeferidos}" id="medicamentosList2" paginator="true" rows="10"  rowsPerPageTemplate="10,50,100" editable="true" >
+
+                        <f:facet name="header">
+                            <h:outputText value="Medicamentos Indeferidos" />
+                        </f:facet>
+
+                        <p:column  headerText="Nome do Medicamento" >
+                            <h:outputText value="#{medi.nmeMedicamento}" />
+                        </p:column>
+                        <p:column  headerText="Empresa Detentora" >
+                            <h:outputText value="#{medi.tdEmpresa.nmeEmpresa}" />
+                        </p:column>
+                        <p:column  headerText="Status" >
+                            <h:outputText value="#{medi.stsMedicamento}" />
+                        </p:column>
+
+
+                        <p:column headerText="Operações">
+                            <p:commandButton id="btn_revisar" update=":dadosForm:medicamentosList,:dadosForm:msgs, :dados2Form:medicamentosList2" icon="ui-icon-bullet" value="Pedir revisão"  action="#{registrarParecerConclusivoMB.salvarRevisao()}" >  
+
+                                <f:setPropertyActionListener value="#{medi}" target="#{registrarParecerConclusivoMB.selMedicamento}" />  
+
+
+                            </p:commandButton>    
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </p:panel>
+
+
+
+
+
+
+        </h:body>
+    </ui:define>
+</ui:composition>
